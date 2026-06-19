@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { getGoal, getWeightEntries, Goal, WeightEntry } from "../../lib/api";
+import GoalDisplay from "../components/GoalDisplay";
 import WeightChart from "../components/WeightChart";
 import WeightForm from "../components/WeightForm";
 import WeightInsights from "../components/WeightInsights";
@@ -95,6 +96,13 @@ export default function WeightPage() {
                 : aiInsight ?? "No insight yet."}
             </div>
           </section>
+
+          {goal && (
+            <section>
+              <h2 className="text-lg font-semibold mb-3">Goal Overview</h2>
+              <GoalDisplay goal={goal} entries={entries} />
+            </section>
+          )}
 
           <section>
             <h2 className="text-lg font-semibold mb-3">7-Day Insights</h2>
