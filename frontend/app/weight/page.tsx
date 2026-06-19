@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getWeightEntries, WeightEntry } from "../../lib/api";
+import { getGoal, getWeightEntries, Goal, WeightEntry } from "../../lib/api";
 import WeightChart from "../components/WeightChart";
 import WeightForm from "../components/WeightForm";
 import WeightInsights from "../components/WeightInsights";
@@ -16,14 +16,15 @@ export default function WeightPage() {
   const [submitting, setSubmitting] = useState(false);
   const [aiInsight, setAiInsight] = useState<string | null>(null);
   const [aiLoading, setAiLoading] = useState(false);
+  const [goal, setGoal] = useState<Goal | null>(null);
 
-  async function fetchAIInsight(currentEntries: WeightEntry[]) {
+  async function fetchAIInsight(currentEntries: WeightEntry[], currentGoal: Goal | null) {
     setAiLoading(true);
     try {
       const res = await fetch(`${API_BASE}/ai-insight`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(currentEntries),
+        body: JSON.stringify({ entries: currentEntries, goal: currentGoal ?? null }),
       });
       if (!res.ok) throw new Error(res.statusText);
       const data = await res.json();
@@ -37,10 +38,11 @@ export default function WeightPage() {
 
   async function fetchEntries() {
     try {
-      const data = await getWeightEntries();
+      const [data, fetchedGoal] = await Promise.all([getWeightEntries(), getGoal()]);
       setEntries(data);
+      setGoal(fetchedGoal);
       setError(null);
-      await fetchAIInsight(data);
+      await fetchAIInsight(data, fetchedGoal);
     } catch (err) {
       console.error(err);
       setError("Failed to load entries. Please try again.");
